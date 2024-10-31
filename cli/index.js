@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
-import { jwtDecode, base64URLEncode } from "../lib";
+import { jwtDecode, base64URLEncode } from "../src/index.js";
 import clipboardy from "clipboardy";
-
 const GENERIC_ERROR_CODE = 1;
 
 const decode = async (jwt) => {
@@ -39,27 +38,27 @@ export const cli = async (clipboard, argv) => {
       // Great, there's something in the clipboard. Let's try to decode it as a
       // JWT.
       try {
-        const decoded = await decode(clipboard);
         // Show what we found in the clipboard
         console.log("Decoding: ");
         console.log(clipboard);
+        const decoded = await decode(clipboard);
         // Show the decoded jwt.
         console.log(decoded);
         return decoded;
       } catch (e) {
         console.error("I found an error :(");
         console.error(
-          "Couldn't decode what was in clipboard. Pass in a JWT as the first argument or copy a JWT to your clipboard"
+          "Couldn't decode what was in your clipboard. You might try copying the JWT again."
         );
-        console.error("what's on your clipboard? ");
-        console.error(clipboard);
-        throw e;
+        console.error("What's the problem? ");
+        console.error(" ", e.message);
+        console.error("What's on your clipboard? ");
+        console.error(" ", clipboard);
+        return GENERIC_ERROR_CODE;
       }
     } else {
       console.error("I found an error :(");
-      console.error(
-        "Nothing in your clipboard. Pass in a JWT as the first argument or copy a JWT to your clipboard"
-      );
+      console.error("Didn't find anything in your clipboard.");
       return GENERIC_ERROR_CODE;
     }
   } else if (arg2 === "-b" || arg2 === "--base64url") {
@@ -78,25 +77,21 @@ export const cli = async (clipboard, argv) => {
     } catch (e) {
       console.error("I found an error :(");
       console.error("base64url encoding failed:", e.message);
-      throw e;
     }
   } else if (arg2) {
     try {
       const decoded = jwtDecode(arg2);
       console.log("Decoding: \n" + arg2);
       console.log(decoded);
-      return decoded;
+      // return decoded;
     } catch (e) {
       console.error("I found an error :(.");
-      console.error(e, e.message);
-      throw e;
+      // console.error(e, e.message);
+      console.error(e.message);
     }
   } else {
     console.error("I found an error :(.");
     console.error(
-      "Nothing in clipboard and no arguments given. Pass in a JWT as the first argument or copy a JWT to your clipboard"
-    );
-    throw new Error(
       "Nothing in clipboard and no arguments given. Pass in a JWT as the first argument or copy a JWT to your clipboard"
     );
   }
